@@ -1,0 +1,316 @@
+library(shiny)
+library(shinydashboard)
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+library(leaflet)
+library(googleVis)
+library(maps)
+
+
+#source("./helpers.R")
+
+## Header content ----------------------
+header <- dashboardHeader(
+  title = "Top Streamed Songs on Spotify",
+  # Messages menu
+  # dropdownMenu(type = "messages",
+  #              messageItem(
+  #                from = "Sales Dept",
+  #                message = "Sales are steady this month."
+  #              ),
+  #              messageItem(
+  #                from = "New User",
+  #                message = "How do I register?",
+  #                icon = icon("question"),
+  #                time = "13:45"
+  #              ),
+  #              messageItem(
+  #                from = "Support",
+  #                message = "The new server is ready.",
+  #                icon = icon("life-ring"),
+  #                time = "2014-12-01"
+  #              )
+  # ),
+  dropdownMenuOutput("messageMenu"),
+  # Notification
+  dropdownMenu(type = "notifications",
+               notificationItem(
+                 text = "5 new users today",
+                 icon("users")
+               ),
+               notificationItem(
+                 text = "12 items delivered",
+                 icon("truck"),
+                 status = "success"
+               ),
+               notificationItem(
+                 text = "Server load at 86%",
+                 icon = icon("exclamation-triangle"),
+                 status = "warning"
+               )
+  ),
+  # Task
+  dropdownMenu(type = "tasks", badgeStatus = "success",
+               taskItem(value = 90, color = "green",
+                        "Documentation"
+               ),
+               taskItem(value = 17, color = "aqua",
+                        "Project X"
+               ),
+               taskItem(value = 75, color = "yellow",
+                        "Server deployment"
+               ),
+               taskItem(value = 80, color = "red",
+                        "Overall project"
+               )
+  )
+)
+
+## Sidebar content ---------------------
+sidebar <- dashboardSidebar(
+  sidebarMenu(
+    # icon refer to : http://fontawesome.io/icons/
+    menuItem("MusicIsLife", tabName = "musicislife", icon = icon("headphones")),
+    menuItem("Worldmap", tabName = "worldmap", icon = icon("map-marker")),
+    menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
+    menuItem("Widgets", tabName = "widgets", icon = icon("th")),
+    menuItem("Tabbox", tabName = "tabbox", icon = icon("cubes")),
+    menuItem("Source code", icon = icon("file-code-o"), 
+             href = "https://github.com/canslove/test/")
+             #href = "https://github.com/rstudio/shinydashboard/")
+  )
+)
+
+## Body content ------------------------
+body <- dashboardBody(
+  tabItems(
+    # 1st tab content
+    tabItem(tabName = "musicislife",
+              #img(src="https://photosharingsites.files.wordpress.com/2014/11/headphone-headset-music-girl-backgrounds-free-wallpapers-desktop1.jpg", width=1045, height=521)
+              #img(src="https://wallpapersite.com/images/pages/pic_w/3540.jpg")
+              #img(src="https://wallpapersite.com/images/pages/pic_w/7534.jpg")
+              img(src="http://www.bassheadspeakers.com/wp-content/uploads/2016/07/Best-over-ear-bluetooth-headphones-of-2016-820x461.jpg")
+    ),
+    
+    # 2nd tab content
+    tabItem(tabName = "worldmap",
+            
+            # map-start ---------------------
+            fluidPage(
+              leafletOutput("mymap"),
+              br(),
+              checkboxInput("show", "Show States", value = FALSE)
+            )
+            # map-end ---------------------
+    ),
+    
+    # 3rd tab content
+    tabItem(tabName = "dashboard",
+            # Boxes need to be put in a row (or column)
+            fluidRow(
+              box(
+              title = "Histogram", background = "maroon", solidHeader = TRUE,
+              #status = "primary", # box header color
+              collapsible = TRUE,
+              plotOutput("plot1", height = 250)
+              ),
+              
+              box(
+                title = "Controls", background = "black", solidHeader = TRUE,
+                #status = "warning", # box header color
+                "Box content here", br(), "More box content",
+                sliderInput("slider", "Number of observations:", 1, 100, 50),
+                textInput("text", "Text input:")
+              )
+            )
+    ),
+    
+    # 4th tab content
+    tabItem(tabName = "tabbox",
+            # tab box
+            fluidRow(
+              tabBox(
+                title = "First tabBox",
+                # The id lets us use input$tabset1 on the server to find the current tab
+                id = "tabset1", height = "250px",
+                tabPanel("Tab1", "First tab content"),
+                tabPanel("Tab2", "Tab content 2")
+              ),
+              tabBox(
+                side = "right", height = "250px",
+                selected = "Tab3",
+                tabPanel("Tab1", "Tab content 1"),
+                tabPanel("Tab2", "Tab content 2"),
+                tabPanel("Tab3", "Note that when side=right, the tab order is reversed.")
+              )
+            ),
+            fluidRow(
+              tabBox(
+                # Title can include an icon
+                title = tagList(shiny::icon("gear"), "tabBox status"),
+                tabPanel("Tab1",
+                         "Currently selected tab from first box:",
+                         verbatimTextOutput("tabset1Selected")
+                ),
+                tabPanel("Tab2", "Tab content 2")
+              )
+            )
+    ),
+    
+    # 5th tab content
+    tabItem(tabName = "widgets",
+            h2("Widgets tab content"),
+            
+            fluidRow(
+              column(3, wellPanel(
+                selectInput("input_type", "Input type",
+                            c("slider", "text", "numeric", "checkbox",
+                              "checkboxGroup", "radioButtons", "selectInput",
+                              "selectInput (multi)", "date", "daterange"
+                            )
+                )
+              )),
+              
+              column(3, wellPanel(
+                # This outputs the dynamic UI component
+                uiOutput("ui")
+              )),
+              
+              column(3,
+                     tags$p("Input type:"),
+                     verbatimTextOutput("input_type_text"),
+                     tags$p("Dynamic input value:"),
+                     verbatimTextOutput("dynamic_value")
+              )
+            )
+    )
+  )
+  
+)
+
+## ==========================================================================
+## app.R ## 
+## ==========================================================================
+
+# map-start ---------------------
+colStates <- map("state", fill = TRUE, plot = FALSE,
+                 region = c("florida", "louisiana", "mississippi", 
+                            "alabama", "georgia", "tennesse"))
+# map-end ---------------------
+
+ui <- dashboardPage(header, sidebar, body)
+
+
+server <- function(input, output, session) {
+  set.seed(122)
+  histdata <- rnorm(500)
+  
+  # map-start ---------------------
+  output$mymap <- renderLeaflet({
+    leaflet(Andrew) %>%
+      addProviderTiles("Esri.WorldStreetMap") %>%
+      addPolylines(~Long, ~Lat) %>%
+      addMarkers(lng=-74.0059, lat=40.7128, popup="New York City") #%>%
+      # addCircleMarkers() %>%
+      # addPopups() %>%
+      # addPolylines() %>%
+      # addPolygons() %>%
+      # addCircles() %>%
+      # addRectangles() %>%
+      # addTopoJSON() %>%
+      # addGeoJSON()
+      
+      #addProviderTiles(providers$OpenStreetMap) %>%  # Add default OpenStreetMap map tiles
+      #addMarkers(lng=-74.0059, lat=40.7128, popup="New York City")
+  })
+  
+  observeEvent(input$show, {
+    proxy <- leafletProxy("mymap")
+    if(input$show) {
+      proxy %>% addPolygons(data=colStates, stroke = FALSE,
+                            #fillColor = heat.colors(6, alpha = 1),
+                            fillColor = heat.colors(6, alpha = NULL),
+                            layerId = LETTERS[1:6])
+    } else {
+      #proxy %>% removeShape(layerId = LETTERS[1:6])
+      proxy %>% removeShape(layerId = c('A', 'B', 'C'))
+    }
+  })
+  # map-end ---------------------
+  
+  output$plot1 <- renderPlot({
+    data <- histdata[seq_len(input$slider)]
+    hist(data)
+  })
+  
+  output$messageMenu <- renderMenu({
+    # Code to generate each of the messageItems here, in a list. This assumes
+    # that messageData is a data frame with two columns, 'from' and 'message'.
+    messageData <- data.frame(
+      from = c("Sales Dept", "New User","Support"),
+      message = c("Sales are steady this month.", "How do I register?", "The new server is ready.")
+    )
+    msgs <- apply(messageData, 1, function(row) {
+      messageItem(from = row[["from"]], message = row[["message"]])
+    })
+    
+    # This is equivalent to calling:
+    #   dropdownMenu(type="messages", msgs[[1]], msgs[[2]], ...)
+    dropdownMenu(type = "messages", .list = msgs)
+  })
+  
+  output$ui <- renderUI({
+    if (is.null(input$input_type))
+      return()
+    
+    # Depending on input$input_type, we'll generate a different
+    # UI component and send it to the client.
+    switch(input$input_type,
+           "slider" = sliderInput("dynamic", "Dynamic",
+                                  min = 1, max = 20, value = 10),
+           "text" = textInput("dynamic", "Dynamic",
+                              value = "starting value"),
+           "numeric" =  numericInput("dynamic", "Dynamic",
+                                     value = 12),
+           "checkbox" = checkboxInput("dynamic", "Dynamic",
+                                      value = TRUE),
+           "checkboxGroup" = checkboxGroupInput("dynamic", "Dynamic",
+                                                choices = c("Option 1" = "option1",
+                                                            "Option 2" = "option2"),
+                                                selected = "option2"
+           ),
+           "radioButtons" = radioButtons("dynamic", "Dynamic",
+                                         choices = c("Option 1" = "option1",
+                                                     "Option 2" = "option2"),
+                                         selected = "option2"
+           ),
+           "selectInput" = selectInput("dynamic", "Dynamic",
+                                       choices = c("Option 1" = "option1",
+                                                   "Option 2" = "option2"),
+                                       selected = "option2"
+           ),
+           "selectInput (multi)" = selectInput("dynamic", "Dynamic",
+                                               choices = c("Option 1" = "option1",
+                                                           "Option 2" = "option2"),
+                                               selected = c("option1", "option2"),
+                                               multiple = TRUE
+           ),
+           "date" = dateInput("dynamic", "Dynamic"),
+           "daterange" = dateRangeInput("dynamic", "Dynamic")
+    )
+  })
+  
+  output$input_type_text <- renderText({
+    input$input_type
+  })
+  
+  output$dynamic_value <- renderPrint({
+    str(input$dynamic)
+  })
+        
+}
+
+shinyApp(ui, server)
