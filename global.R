@@ -4,12 +4,12 @@ library(data.table)
 library(dplyr) # data manupulation
 library(tidyr)
 library(plotly) # chart/graph
-library(reshape2)
+#library(reshape2)
 library(ggplot2) # chart/grpah
 
 library(leaflet) # map
 library(RColorBrewer)
-library(googleVis)
+#library(googleVis)
 library(maps)
 library(DT) # data table
 
@@ -24,6 +24,7 @@ library(memoise)
 # data set load             ----------------------------------
 raw.df <- as.data.frame(fread("./data_reduced.csv", stringsAsFactors = F))
 region.df <- as.data.frame(fread("./region_code_reduced.csv", header=TRUE, stringsAsFactors = F))
+region_map.df <- as.data.frame(fread("./region_map.csv", header=TRUE, stringsAsFactors = F))
 
 # Change Variable Data Type ----------------------------------
 raw.df <- raw.df %>% mutate(DATE = as.Date(DATE, "%Y-%m-%d"))
@@ -41,7 +42,7 @@ choice <- colnames(raw.df)
 
 
 #---------------------------------------------------------
-flights <- fread(file = "./flights14.csv")
+#flights <- fread(file = "./flights14.csv")
 # map-start ---------------------
 colStates <- map("state", fill = TRUE, plot = FALSE,
                  region = c("florida", "louisiana", "mississippi",

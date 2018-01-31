@@ -130,14 +130,22 @@ server <- function(input, output, session) {
     #print(facets)
     
     tarGet <- ifelse(input$Id_man_or_song, input$x, input$y)
-    
+    geom_User <- switch(input$Id_plotType,
+                        "Scatter" = geom_point(),
+                        "Bar" = geom_bar(stat="identity"),
+                        "Histogram" = geom_histogram(stat="identity"),
+                        "Distribution" = geom_density(stat="identity"))
+    # "Scatter", "Bar", "Histogram", "Distribution"
     selected_trends() %>%
       #gather(key = type, value = delay, departure, arrival) %>%
       ggplot(aes(x = DATE, y=RANKING)) +
-      geom_point() + stat_smooth(method = "lm", se = FALSE) + facet_grid(~REGION) +
+      #ggplot(aes(x = DATE, y=input$Id_varY)) +
+      geom_User +
+      #geom_point() +
+      stat_smooth(method = "lm", se = FALSE) + facet_grid(~REGION) + #input$facet_col) +
       #facet_grid(facets) +
-      ggtitle(paste("Rank w.r.t. DATE", tarGet , sep = " - "))
-  })
+      ggtitle(paste("Rank by DATE", tarGet , sep = " - "))
+  }) 
   
   #--- Ex)
   #g <- ggplot(data = a, aes(x=DATE, y=RANKING))
@@ -170,7 +178,8 @@ server <- function(input, output, session) {
   set.seed(122)
   histdata <- rnorm(500)
   output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider0[1])]
+    #data <- histdata[seq_len(input$slider0[1])]
+    data <- histdata[seq_len(input$dynamic)]
     hist(data)
   })
   
@@ -183,7 +192,8 @@ server <- function(input, output, session) {
   
   ## shold be updated that the df set should selected or filtere by inptt$dynamic
   output$plot100 <- renderPlot({
-    raw.df %>% filter(DATE == as.Date("2017-01-03", "%Y-%m-%d")) %>%
+    #raw.df %>% filter(DATE == as.Date("2017-01-03", "%Y-%m-%d")) %>%
+    raw.df %>% filter(DATE == input$Id_date[1]) %>%
       ggplot(aes(x=RANKING, y=STREAMS)) +
       geom_point() +
       ggtitle("Preliminary")
@@ -192,15 +202,23 @@ server <- function(input, output, session) {
 # Analysis ( #3 Map ) =======================================================================================================
  
   points <- eventReactive(input$recalc, {
-    cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
+    #cbind(rnorm(40) * 2 + 13, rnorm(40) + 48)
+    cbind(region_map.df$Longitude, region_map.df$Latitude)
   }, ignoreNULL = FALSE)
   
+  
+  # points <- switch(input$Id_plotType,
+  #                     "Scatter" = geom_point(),
+  #                     "Bar" = geom_bar(stat="identity"),
+  #                     "Histogram" = geom_histogram(stat="identity"),
+  #                     "Distribution" = geom_density(stat="identity"))
+
   output$mymap <- renderLeaflet({
     leaflet() %>%
       addProviderTiles(providers$Stamen.TonerLite,
-                       options = providerTileOptions(noWrap = TRUE)
-      ) %>%
+                       options = providerTileOptions(noWrap = TRUE)) %>%
       addMarkers(data = points()) #%>%
+    # addMarkers(lng=-74.0059, lat=40.7128, popup="New York City") 
     # addCircleMarkers() %>%
     # addPopups() %>%
     # addPolylines() %>%
@@ -255,39 +273,39 @@ server <- function(input, output, session) {
   
   
   
-  # Flight --> dataframe manipulation =====================
-  observe({
-    dest <- unique(flights[origin == input$origin, dest])
-    updateSelectizeInput(
-      session, "dest",
-      choices = dest,
-      selected = dest[1])
-  })
-  
-  flights_delay <- reactive({
-    flights %>%
-      filter(origin == input$origin & dest == input$dest) %>%
-      group_by(carrier) %>%
-      summarise(n = n(),
-                departure = mean(dep_delay),
-                arrival = mean(arr_delay))
-  }) #reactive
-  
-  output$delay <- renderPlot(
-    flights_delay() %>% 
-      gather(key = type, value = delay, departure, arrival) %>%
-      ggplot(aes(x = carrier, y = delay, fill = type)) +
-      geom_col(position = "dodge") + 
-      ggtitle("Average delay")
-  )
-  
-  output$count <- renderPlot(
-    flights_delay() %>% 
-      ggplot(aes(x = carrier, y = n)) +
-      geom_col(fill = "lightblue") + 
-      ggtitle("Number of flights")
-  )
-  # Flight =================================================
+  # # Flight --> dataframe manipulation =====================
+  # observe({
+  #   dest <- unique(flights[origin == input$origin, dest])
+  #   updateSelectizeInput(
+  #     session, "dest",
+  #     choices = dest,
+  #     selected = dest[1])
+  # })
+  # 
+  # flights_delay <- reactive({
+  #   flights %>%
+  #     filter(origin == input$origin & dest == input$dest) %>%
+  #     group_by(carrier) %>%
+  #     summarise(n = n(),
+  #               departure = mean(dep_delay),
+  #               arrival = mean(arr_delay))
+  # }) #reactive
+  # 
+  # output$delay <- renderPlot(
+  #   flights_delay() %>% 
+  #     gather(key = type, value = delay, departure, arrival) %>%
+  #     ggplot(aes(x = carrier, y = delay, fill = type)) +
+  #     geom_col(position = "dodge") + 
+  #     ggtitle("Average delay")
+  # )
+  # 
+  # output$count <- renderPlot(
+  #   flights_delay() %>% 
+  #     ggplot(aes(x = carrier, y = n)) +
+  #     geom_col(fill = "lightblue") + 
+  #     ggtitle("Number of flights")
+  # )
+  # # Flight =================================================
 
   
   

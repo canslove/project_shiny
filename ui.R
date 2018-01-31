@@ -62,9 +62,9 @@ sidebar <- dashboardSidebar(
     menuItem("Discovery", tabName = "discovery", icon = icon("binoculars")), #To ....
     menuItem("Limitation", tabName = "limitation", icon = icon("exclamation")), #In limit...
     menuItem("Future Work", tabName = "futurework", icon = icon("flask")), #Future Work
-    menuItem("YMap", tabName = "map", icon = icon("map-o")), # Y.....Ymap ???
+    menuItem("Countryside", tabName = "map", icon = icon("map-o")), # Y.....Ymap ???
     #menuItem("Data", tabName = "data", icon = icon("table")),
-    menuItem("Worldmap", tabName = "worldmap", icon = icon("map-marker")),
+    menuItem("Worldwide", tabName = "worldmap", icon = icon("map-marker")),
     #menuItem("Widgets", tabName = "widgets", icon = icon("th")),
     menuItem("Source code", icon = icon("file-code-o"), 
              href = "https://github.com/canslove/project_shiny"),
@@ -94,7 +94,7 @@ body <- dashboardBody(
               # box(
               #   title = "Summary of the data sets", background = Titlecolor, solidHeader = TRUE
               # ),#box
-              img(src="http://www.bassheadspeakers.com/wp-content/uploads/2016/07/Best-over-ear-bluetooth-headphones-of-2016-820x461.jpg")
+              img(src="http://www.bassheadspeakers.com/wp-content/uploads/2016/07/Best-over-ear-bluetooth-headphones-of-2016-820x461.jpg"                  )
             )#fluidPage
     ),#tabItem-Sources
 
@@ -102,29 +102,11 @@ body <- dashboardBody(
     tabItem(tabName = "insights",
             # tab box
             fluidRow(
-              box(
-                title = "Insights", background = "black", solidHeader = TRUE,
-                width = 3,
-                selectizeInput(inputId = "origin",
-                               label = "Departure airport",
-                               choices = unique(flights[, origin])),
-                selectizeInput(inputId = "dest",
-                               label = "Arrival airport",
-                               choices = unique(flights[, dest]))
-              ), # box
-              
-              tabBox(
-                id = "tabid.in.0", height = "650px", width = 9, # width total =12 = 3 + 9
-                tabPanel(icon = icon("bar-chart"), "Visulaize the Data",
-                         box(
-                           title = "Histogram", background = "olive", solidHeader = TRUE,
-                           collapsible = TRUE, width = 12,
-                           #plotOutput("plot1", height = 350)
-                           column(6, plotOutput("count")),
-                           column(6, plotOutput("delay"))
-                         ) # box
-                ) #tabPanel
-              ) # box
+              # box(
+              #   title = "Insights", background = "black", solidHeader = TRUE,
+              #   width = 3
+              # ) # box
+              img(src="https://static1.squarespace.com/static/54c02777e4b022a64cd11524/t/553569a7e4b07ea1b733fd16/1429563818269/")
             ) # fluidRow
     ),##tabItem-Insights
     
@@ -154,7 +136,7 @@ body <- dashboardBody(
                 #             choices = list("Scatter" = 1, "Bar" = 2, "Histogram" = 3, "Distribution" = 3), 
                 #             selected = 1),
                 selectInput(inputId = "Id_varY", label = h5("Select variable to See"), 
-                            choices = list("Ranking" = "RANKING", "Number of streams" = "STREAMS"), 
+                            choices = c("Ranking" = 'RANKING', "Number of streams" = 'STREAMS'), 
                             selected = "RANKING"),
                 selectInput(inputId = "input_type", label = "Switch to checkbox-> Select Regions:",
                             choices = c("slider", "checkboxGroup", "radioButtons", "date", "daterange")), # selectInput
@@ -196,8 +178,8 @@ body <- dashboardBody(
                          box(#title = "Chart", 
                              background = "blue", solidHeader = TRUE, collapsible = TRUE, width = 4,
                              selectInput(inputId = "Id_plotType", label = h5("Select Plot type"), 
-                                         choices = list("Scatter" = 1, "Bar" = 2, "Histogram" = 3, "Distribution" = 3), 
-                                         selected = 1)
+                                         choices = c("Scatter", "Bar", "Histogram", "Distribution"), 
+                                         selected = "Scatter")
                          ),
                          box(#title = "Chart", 
                              background = "blue", solidHeader = TRUE, collapsible = TRUE, width = 4,
@@ -214,15 +196,16 @@ body <- dashboardBody(
                          box( #title = "Chart", 
                            background = "blue", solidHeader = TRUE, collapsible = TRUE, width = 12,
                            
-                           plotOutput(outputId = "plotRank", height = 350),
+                           plotOutput(outputId = "plotRank", height = 350),  #350
                            textOutput(outputId = "desc"), # description
-                           plotOutput("plot1", height = 350),
-                           plotOutput("plot100", height = 350)
+                           plotOutput("plot100", height = 350),
+                           plotOutput("plot1", height = 350)
+                           
                          ) # box
                       
                 ), #tabPanel
 
-                tabPanel("(4) Map", icon = icon("map-marker"), # map rank region -> dybamic (side bar)
+                tabPanel("(3) Map", icon = icon("map-marker"), # map rank region -> dybamic (side bar)
                          box(
                            title = "Chart", background = "fuchsia", solidHeader = TRUE,
                            collapsible = TRUE, width = 12,
@@ -242,7 +225,7 @@ body <- dashboardBody(
                          )# box
                 ), #tabPanel
                 
-                tabPanel("(5) Word Cloud", icon = icon("cloud-download"),
+                tabPanel("(4) Word Cloud", icon = icon("cloud-download"),
                          box(
                            title = "Word Cloud", background = "yellow", solidHeader = TRUE,
                            collapsible = TRUE, width = 8,
@@ -273,7 +256,7 @@ body <- dashboardBody(
             # tab box
             fluidRow(
               tabBox(
-                title = "First tabBox",
+                title = "Relationship",
                 # The id lets us use input$tabset2 on the server to find the current tab
                 id = "tabset2", height = "250px",
                 tabPanel("Tab1", "First tab content", icon = icon("table")),
@@ -284,16 +267,17 @@ body <- dashboardBody(
                 selected = "Tab3",
                 tabPanel("Tab1", "Tab content 1"),
                 tabPanel("Tab2", "Tab content 2"),
-                tabPanel("Tab3", "Note that when side=right, the tab order is reversed.")
+                tabPanel("Tab3", "Note that these results came from limited data")
               )
             ),#fluidRow
             fluidRow(
               tabBox(
                 # Title can include an icon
-                title = tagList(shiny::icon("gear"), "tabBox status"),
+                title = tagList(shiny::icon("user-circle-o"), "Tendency"),
                 tabPanel("Tab1",
-                         "Currently selected tab from first box:",
-                         verbatimTextOutput("tabset1Selected")
+                         "There are several points we can point out ...:",
+                         verbatimTextOutput("tabset1Selected"),
+                         img(src="https://www.virtuslaw.com/wp-content/uploads/2017/07/What-is-a-Limitation-of-Remedy-Clause.jpg")
                 ),
                 tabPanel("Tab2", "Tab content 2")
               )
@@ -306,7 +290,8 @@ body <- dashboardBody(
             fluidRow(
               box(
                 title = "Blind spots", background = Titlecolor, solidHeader = TRUE
-              )#box
+              ),#box
+              img(src="http://images.clipartpanda.com/limitation-clipart-limitation-plane1.jpg", width = 960, height = 640)
             )#fluidRow
     ),#tabItem-Limitation
     
@@ -316,7 +301,8 @@ body <- dashboardBody(
             fluidRow(
               box(
                 title = "Further Work", background = Titlecolor, solidHeader = TRUE
-              )#box
+              ),#box
+              img(src="http://unidosxisrael.org/wp-content/uploads/2016/12/19los10consejos.jpg")
             )#fluidRow
     ),#tabItem-Futurework
     
