@@ -1,15 +1,19 @@
 library(shiny)
+library(shinythemes)
 library(shinydashboard)
+#library(shinyGlobe)
+
 library(data.table)
 library(dplyr) # data manupulation
 library(tidyr)
 library(plotly) # chart/graph
 #library(reshape2)
 library(ggplot2) # chart/grpah
+library(ggthemes)
 
 library(leaflet) # map
 library(RColorBrewer)
-#library(googleVis)
+library(googleVis)
 library(maps)
 library(DT) # data table
 
@@ -120,7 +124,7 @@ list_RegionMap <- c(
   "USA" = "us",
   "Uruguay" = "uy")
 
-## Word Cloud ============================================================
+# Word Cloud ============================================================
 # The list of valid books
 books <<- list("A Mid Summer Night's Dream" = "summer",
                "The Merchant of Venice" = "merchant",
@@ -132,17 +136,17 @@ getTermMatrix <- memoise(function(book) {
   # malicious user could manipulate this value.
   if (!(book %in% books))
     stop("Unknown book")
-  
-  text <- readLines(sprintf("./book/%s.txt.gz", book),
+
+  text <- readLines(sprintf("./%s.txt.gz", book),
                     encoding="UTF-8")
-  
+
   myCorpus = Corpus(VectorSource(text))
   myCorpus = tm_map(myCorpus, content_transformer(tolower))
   myCorpus = tm_map(myCorpus, removePunctuation)
   myCorpus = tm_map(myCorpus, removeNumbers)
   myCorpus = tm_map(myCorpus, removeWords,
                     c(stopwords("SMART"), "thy", "thou", "thee", "the", "and", "but"))
-  
+
   myDTM = TermDocumentMatrix(myCorpus, control = list(minWordLength = 1))
   m = as.matrix(myDTM)
   sort(rowSums(m), decreasing = TRUE)
@@ -159,5 +163,9 @@ nmRawdf = names(raw.df)
 #rawInitArtist = unique(raw.df %>% filter(DATE > "2017-01-01" & DATE < "2017-01-31") %>% select(ARTIST))
 rawInitArtist = unique(raw.df %>% select(ARTIST))
 ## Plotly with shiny =============================================================
+
+
+ShinyThemeName = "united" # cerulean, cosmo, cyborg, darkly, flatly, journal, lumen, paper, readable, sandstone, simplex, slate, spacelab, superhero, united, yeti
+
 
 #shinyApp(ui, server)
