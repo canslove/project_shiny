@@ -75,8 +75,27 @@ server <- function(input, output, session) {
         filter(ARTIST == input$x,
                DATE > (input$Id_date[1]) & DATE < (input$Id_date[2]),
                REGION %in% input$Id_RegionSel)
+      
     }) # selected_trends <- reactive
     
+    ##datatable(raw.df[input$slider0[1]:input$slider0[2],], rownames=FALSE, filter = 'top') %>% 
+    
+    # A <- reactive({
+    #   raw.df %>%
+    #     filter(DATE >= (input$date[1]) & DATE <= (input$date[2]),
+    #            REGION %in% input$Id_RegionSel) %>%
+    #     group_by(TRACK_NAME, REGION, ARTIST) %>%
+    #     summarise(sum_Stream = sum(STREAMS))# %>%
+    #     #arrange(REGION, desc(sum_Stream))
+    # })
+    
+    # B <- reactive({
+    #   A %>%
+    #     group_by(REGION) %>%
+    #     top_n(input$rankinteger, sum_Stream) %>%
+    #     arrange(REGION, desc(sum_Stream))
+    # })
+    # 
     
     output$ui <- renderUI({
       if (is.null(input$input_type))
@@ -151,8 +170,8 @@ server <- function(input, output, session) {
     
     output$table1 <- DT::renderDataTable({
       #datatable(raw.df[input$slider0[1]:input$slider0[2],], rownames=FALSE, filter = 'top') %>% 
-      datatable(raw.df, rownames=FALSE, filter = 'top') %>% 
-        formatStyle(input$selected, background="skyblue", fontWeight='bold')
+      datatable(raw.df, rownames=FALSE, filter = 'top') #%>% 
+        #formatStyle(input$selected, background="skyblue", fontWeight='bold')
       # Highlight selected column using formatStyle
     })#output$table <- DT::renderDataTable
     
@@ -299,6 +318,33 @@ server <- function(input, output, session) {
         theme_hc()+ scale_colour_hc() + theme(plot.background = element_rect(fill = "black"))
     })
     
+    # Analysis ( #3 Status ) ==========================================================================================
+    output$p30 <- renderPlot({
+      
+      #tarGet2 <-ifelse(input$Id_man_or_song, ARTIST, TRACK_NAME)
+      #A() %>%
+      raw.df %>%
+        filter(DATE >= (input$Id_date[1]) & DATE <= (input$Id_date[2]),
+               REGION %in% input$Id_RegionSel) %>%
+        group_by(TRACK_NAME, REGION, ARTIST) %>%
+        summarise(sum_Stream = sum(STREAMS)) %>%
+        group_by(REGION) %>%
+        top_n(input$rankinteger, sum_Stream) %>%
+        arrange(REGION, desc(sum_Stream)) %>%
+        ggplot(aes(x=ARTIST, y=sum_Stream, label=sum_Stream )) +
+        #ggplot(aes(x=ifelse(input$Id_man_or_song,ARTIST,TRACK_NAME), y=sum_Stream, label=sum_Stream )) +
+        #ggplot(aes(x=as.character(tarGet2), y=sum_Stream, label=sum_Stream )) +
+        geom_bar(aes(fill= REGION), stat = "identity", position = "dodge") +
+        ggtitle(paste0("Rankings in each Countries (",input$date[1],"~",input$date[2],")" )) +
+        geom_text(size = 3, position = position_stack(vjust = 0.5)) +
+        ylab("Total played number of Streams") +
+        xlab("ARTIST or Track Name") +
+        #xlab(as.character(tarGet2)) +
+        coord_flip() +
+        theme_tufte()
+    })
+
+    
     # Analysis ( #3 Map ) =======================================================================================================
     
     points <- eventReactive(input$recalc, {
@@ -320,8 +366,8 @@ server <- function(input, output, session) {
       raw.df %>%
         filter(ARTIST== input$x, TRACK_NAME == input$y, 
                DATE > (input$Id_date[1]) & DATE < (input$Id_date[2])) %>%
-        group_by(REGION) %>%
-        summarise(REGION, Avg_ranking = mean(RANKING), Avg_stream = mean(STREAMS)) 
+        group_by_(REGION) %>%
+        summarise_(REGION, Avg_ranking = mean(RANKING), Avg_stream = mean(STREAMS)) 
     })#reactive
     
     #### Left join require to adjust the map for showing the avg_ranking number ########################################

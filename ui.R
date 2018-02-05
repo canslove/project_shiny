@@ -78,15 +78,15 @@ sidebar <- dashboardSidebar( background = "black",
     menuItem("Future Work", tabName = "futurework", icon = icon("flask")), #Future Work
     menuItem("Nationwide", tabName = "map", icon = icon("map-o")), # Y.....Ymap ???
     #menuItem("Data", tabName = "data", icon = icon("table")),
-    menuItem("Worldwide", tabName = "worldmap", icon = icon("map-marker")),
+    menuItem("Worldwide", tabName = "worldmap", icon = icon("map-marker"))
     #menuItem("Widgets", tabName = "widgets", icon = icon("th")),
     #menuItem("Source code", icon = icon("file-code-o"), 
     #         href = "https://github.com/canslove/project_shiny"),
 
-    #box(title = "Controls1", background = "black", solidHeader = TRUE, width = 12,
-    box(background = "black", width = 12, collapsible = TRUE,
-        selectizeInput(inputId = "selected", label = "Item in Dataset(1) :", choice)
-    ) #box
+    # #box(title = "Controls1", background = "black", solidHeader = TRUE, width = 12,
+    # box(background = "black", width = 12, collapsible = TRUE,
+    #     selectizeInput(inputId = "selected", label = "Item in Dataset(1) :", choice)
+    # ) #box
     
     
     
@@ -158,7 +158,7 @@ body <- dashboardBody(
     #         )# fluidPage
     # ), # tabItem
     # Summary of data sets
-    tabItem(tabName = "sourses",
+    tabItem(tabName = "Intro",
             fluidPage(theme = shinytheme(ShinyThemeName),
               #h3("Summary of the data sets"),
               # box(
@@ -180,6 +180,8 @@ body <- dashboardBody(
                             box(
                               title = "Insights", width = NULL, background = Titlecolor, solidHeader = TRUE, status = "primary",
                               tags$i(h4("Spotify Investor Says Streaming Will Quadruple by 2025. Any Questions?")),
+                              tags$i(h5("Spotify is on course to finish 2017 with 70m paying subscribers")),
+                              tags$i(h5("and close to 160m total active users, according to MBW\'s projections")),
                               hr(),
                               h3("Predict"),
                               h5("- what type of songs will be popular in the future?"),
@@ -194,14 +196,15 @@ body <- dashboardBody(
                             ) #box
                      ), #column
                      column(width = 6,
-                            img(src="https://static1.squarespace.com/static/54c02777e4b022a64cd11524/t/553569a7e4b07ea1b733fd16/1429563818269/", width = 630, height = 460)
+                            #img(src="https://static1.squarespace.com/static/54c02777e4b022a64cd11524/t/553569a7e4b07ea1b733fd16/1429563818269/", width = 630, height = 460)
+                            img(src="spotify-paying-subs-and-total-active user.jpg", width = 630, height = 460)
                      )#column
             )#fluidRow
     ),##tabItem-Insights
     
     tabItem(tabName = "datatable",
             fluidRow(theme = shinytheme(ShinyThemeName),
-                     box(title = "Worldwide Top 100 Ranked Songs (Jan/01/2017 ~ Jan/01/2018)",
+                     box(title = "Worldwide Top 100 Ranked Songs (Jan/01/2017 ~ Jan/09/2018)",
                          #background = Titlecolor, 
                          solidHeader = TRUE, #status = "primary",
                          DT::dataTableOutput("table1"), width = 12)
@@ -274,7 +277,7 @@ body <- dashboardBody(
                 #          box(DT::dataTableOutput("table2"), width = 12)
                 # ), # tabPanel
                 
-                tabPanel("(1) Var-Chart", icon = icon("line-chart"), # map rank region -> dybamic (side bar)
+                tabPanel("(1) Chart", icon = icon("line-chart"), # map rank region -> dybamic (side bar)
                          box(#title = "Chart", 
                            #background = "black", 
                            solidHeader = TRUE, collapsible = TRUE, width = 4,
@@ -292,7 +295,7 @@ body <- dashboardBody(
                          ),#box
                          box(#background = "navy", 
                            width = 4,
-                             tags$p("Selected Region:"),
+                             tags$p("Selected Region(by radio buttons bottom):"),
                              verbatimTextOutput("sel_region")
                          ), # box
 
@@ -339,7 +342,21 @@ body <- dashboardBody(
                          
                 ), #tabPanel
                 
-                tabPanel("(3) Map", icon = icon("map-marker"), # map rank region -> dybamic (side bar)
+                tabPanel("(3) Status", icon = icon("chart-bar"), # map rank region -> dybamic (side bar)
+                         # Ranking by Average Number of streams in designated duration ---------
+                         sliderInput(inputId = "rankinteger", "Select cufoff ranking:", min = 1, max = 100, value = 5),
+                         #sliderInput(inputId = "slider_t3", "Ranking (range) to see:", min = 1, max = 100, value = c(1, 10)),
+                         box(title = tags$i("Ranks by average Number of streams in designated duration"), 
+                           #background = "black", 
+                           solidHeader = TRUE, collapsible = TRUE, width = 12,
+                           checkboxInput("summaryp30", "Show Summary", TRUE),
+                           #verbatimTextOutput("summaryp30"), --> I want to draw the table
+                           #textOutput(outputId = "descp30"), # description
+                           plotOutput(outputId = "p30", height = 450)
+                         )
+                ), #tabPanel
+                
+                tabPanel("(4) Map", icon = icon("map-marker"), # map rank region -> dybamic (side bar)
                          box(
                            title = "Chart", 
                            #background = "fuchsia", 
@@ -363,7 +380,7 @@ body <- dashboardBody(
                          )# box
                 ), #tabPanel
                 
-                tabPanel("(4) Word Cloud", icon = icon("cloud-download"),
+                tabPanel("(5) Word Cloud", icon = icon("cloud-download"),
                          box(
                            title = "Word Cloud", 
                            #background = "yellow", 
