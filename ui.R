@@ -69,7 +69,7 @@ sidebar <- dashboardSidebar( background = "black",
   
   sidebarMenu(
     #menuItem("MOtivation", tabName = "motive", icon = icon("headphones")), # introduction
-    menuItem("Sourses", tabName = "sourses", icon = icon("headphones")), # Summary of data sets
+    menuItem("Sourses", tabName = "intro", icon = icon("headphones")), # Summary of data sets
     menuItem("Insights", tabName = "insights", icon = icon("list")), # Points
     menuItem("DataTable", tabName = "datatable", icon = icon("table")), # On analysis
     menuItem("Analysis", tabName = "analysis", icon = icon("pencil")), # On analysis
@@ -158,7 +158,7 @@ body <- dashboardBody(
     #         )# fluidPage
     # ), # tabItem
     # Summary of data sets
-    tabItem(tabName = "Intro",
+    tabItem(tabName = "intro",
             fluidPage(theme = shinytheme(ShinyThemeName),
               #h3("Summary of the data sets"),
               # box(
@@ -277,7 +277,7 @@ body <- dashboardBody(
                 #          box(DT::dataTableOutput("table2"), width = 12)
                 # ), # tabPanel
                 
-                tabPanel("(1) Chart", icon = icon("line-chart"), # map rank region -> dybamic (side bar)
+                tabPanel("(1) Chart", icon = icon("area-chart"), # map rank region -> dybamic (side bar)
                          box(#title = "Chart", 
                            #background = "black", 
                            solidHeader = TRUE, collapsible = TRUE, width = 4,
@@ -315,7 +315,7 @@ body <- dashboardBody(
                          
                 ), #tabPanel
                 
-                tabPanel("(2) Graph", icon = icon("chart-area"), # map rank region -> dybamic (side bar)
+                tabPanel("(2) Graph", icon = icon("line-chart"), # map rank region -> dybamic (side bar)
                          box( #title = "Chart", 
                            background = "black", solidHeader = TRUE, collapsible = TRUE, width = 12,
                            checkboxInput("summaryplot100", "Show Summary", TRUE),
@@ -342,7 +342,7 @@ body <- dashboardBody(
                          
                 ), #tabPanel
                 
-                tabPanel("(3) Status", icon = icon("chart-bar"), # map rank region -> dybamic (side bar)
+                tabPanel("(3) Status", icon = icon("bar-chart"), # map rank region -> dybamic (side bar)
                          # Ranking by Average Number of streams in designated duration ---------
                          sliderInput(inputId = "rankinteger", "Select cufoff ranking:", min = 1, max = 100, value = 5),
                          #sliderInput(inputId = "slider_t3", "Ranking (range) to see:", min = 1, max = 100, value = c(1, 10)),
